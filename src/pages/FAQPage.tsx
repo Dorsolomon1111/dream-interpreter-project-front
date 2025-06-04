@@ -3,7 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { Brain, Sparkles, ChevronRight, ArrowRight } from 'lucide-react';
 import { faqData } from '../data/faqData';
 
-const FAQPage = ({ expandedFAQ, setExpandedFAQ }) => {
+interface FAQPageProps {
+  expandedFAQ: string | null;
+  setExpandedFAQ: (value: string | null) => void;
+}
+
+const FAQPage: React.FC<FAQPageProps> = ({ expandedFAQ, setExpandedFAQ }) => {
   const navigate = useNavigate();
 
   // Scroll to top when FAQ page mounts

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Stars, ArrowRight, ChevronRight, Users, Zap, Clock, Sparkles, Star } from 'lucide-react';
 import Navigation from '../components/Navigation';

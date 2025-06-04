@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Moon, Loader2, Check, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 
@@ -15,7 +15,7 @@ const SignInPage = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  const handleSignIn = async (e) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     // Simulate sign in process

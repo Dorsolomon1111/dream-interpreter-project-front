@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Moon, Loader2, Check, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { Moon, Loader2, Check, ArrowLeft } from 'lucide-react';
 
 const SignUpPage = () => {
   const navigate = useNavigate();
@@ -19,14 +19,14 @@ const SignUpPage = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
   };
 
-  const handleSignUp = async (e) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
       alert('Passwords do not match');

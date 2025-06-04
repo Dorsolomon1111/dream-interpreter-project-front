@@ -6,7 +6,7 @@ const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
 
-  const scrollToSection = (sectionId) => {
+  const scrollToSection = (sectionId: string) => {
     // If we're not on the home page, navigate there first
     if (window.location.pathname !== '/') {
       navigate('/');

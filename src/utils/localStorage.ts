@@ -1,10 +1,24 @@
+// Interfaces for Luna app data
+interface UserPreferences {
+  theme: string;
+  rememberMe: boolean;
+  notifications: boolean;
+}
+
+interface DreamData {
+  dreamText: string;
+  interpretation: string;
+}
+
+interface SavedDream extends DreamData {
+  id: number;
+  timestamp: string;
+}
+
 /**
  * Safely gets an item from localStorage
- * @param {string} key - The key to retrieve
- * @param {any} defaultValue - Default value if key doesn't exist
- * @returns {any} - The stored value or default value
  */
-export const getFromStorage = (key, defaultValue = null) => {
+export const getFromStorage = <T>(key: string, defaultValue: T): T => {
   try {
     const item = localStorage.getItem(key);
     return item ? JSON.parse(item) : defaultValue;
@@ -16,11 +30,8 @@ export const getFromStorage = (key, defaultValue = null) => {
 
 /**
  * Safely sets an item in localStorage
- * @param {string} key - The key to store
- * @param {any} value - The value to store
- * @returns {boolean} - True if successful, false otherwise
  */
-export const setToStorage = (key, value) => {
+export const setToStorage = (key: string, value: any): boolean => {
   try {
     localStorage.setItem(key, JSON.stringify(value));
     return true;
@@ -32,10 +43,8 @@ export const setToStorage = (key, value) => {
 
 /**
  * Safely removes an item from localStorage
- * @param {string} key - The key to remove
- * @returns {boolean} - True if successful, false otherwise
  */
-export const removeFromStorage = (key) => {
+export const removeFromStorage = (key: string): boolean => {
   try {
     localStorage.removeItem(key);
     return true;
@@ -47,9 +56,8 @@ export const removeFromStorage = (key) => {
 
 /**
  * Clears all localStorage data
- * @returns {boolean} - True if successful, false otherwise
  */
-export const clearStorage = () => {
+export const clearStorage = (): boolean => {
   try {
     localStorage.clear();
     return true;
@@ -63,17 +71,15 @@ export const clearStorage = () => {
 
 /**
  * Saves user preferences
- * @param {object} preferences - User preferences object
  */
-export const saveUserPreferences = (preferences) => {
+export const saveUserPreferences = (preferences: UserPreferences): boolean => {
   return setToStorage('luna_user_preferences', preferences);
 };
 
 /**
  * Gets user preferences
- * @returns {object} - User preferences or default values
  */
-export const getUserPreferences = () => {
+export const getUserPreferences = (): UserPreferences => {
   return getFromStorage('luna_user_preferences', {
     theme: 'dark',
     rememberMe: false,
@@ -83,11 +89,10 @@ export const getUserPreferences = () => {
 
 /**
  * Saves a dream interpretation (for free users - limited to 10)
- * @param {object} dreamData - Dream and interpretation data
  */
-export const saveDreamInterpretation = (dreamData) => {
+export const saveDreamInterpretation = (dreamData: DreamData): boolean => {
   const savedDreams = getSavedDreams();
-  const newDream = {
+  const newDream: SavedDream = {
     id: Date.now(),
     timestamp: new Date().toISOString(),
     ...dreamData
@@ -100,25 +105,23 @@ export const saveDreamInterpretation = (dreamData) => {
 
 /**
  * Gets saved dream interpretations
- * @returns {array} - Array of saved dreams
  */
-export const getSavedDreams = () => {
-  return getFromStorage('luna_saved_dreams', []);
+export const getSavedDreams = (): SavedDream[] => {
+  return getFromStorage<SavedDream[]>('luna_saved_dreams', []);
 };
 
 /**
  * Removes a specific dream interpretation
- * @param {number} dreamId - ID of the dream to remove
  */
-export const removeDreamInterpretation = (dreamId) => {
+export const removeDreamInterpretation = (dreamId: number): boolean => {
   const savedDreams = getSavedDreams();
-  const updatedDreams = savedDreams.filter(dream => dream.id !== dreamId);
+  const updatedDreams = savedDreams.filter((dream: SavedDream) => dream.id !== dreamId);
   return setToStorage('luna_saved_dreams', updatedDreams);
 };
 
 /**
  * Clears all saved dreams
  */
-export const clearSavedDreams = () => {
+export const clearSavedDreams = (): boolean => {
   return removeFromStorage('luna_saved_dreams');
 }; 

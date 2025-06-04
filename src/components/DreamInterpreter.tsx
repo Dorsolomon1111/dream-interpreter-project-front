@@ -1,25 +1,31 @@
 import React, { useState } from 'react';
 import { Feather, Brain, Loader2 } from 'lucide-react';
-import { interpretDream } from '../utils/dreamInterpreter';
+import { interpretDream } from '../utils/dreamInterpreter.ts';
 
-const DreamInterpreter = () => {
-  const [dreamText, setDreamText] = useState('');
-  const [interpretation, setInterpretation] = useState('');
-  const [isInterpreting, setIsInterpreting] = useState(false);
+const DreamInterpreter: React.FC = () => {
+  const [dreamText, setDreamText] = useState<string>('');
+  const [interpretation, setInterpretation] = useState<string>('');
+  const [isInterpreting, setIsInterpreting] = useState<boolean>(false);
 
-  const handleInterpretDream = async () => {
+  const handleInterpretDream = async (): Promise<void> => {
     if (!dreamText.trim()) return;
     
     setIsInterpreting(true);
+    setInterpretation(''); // Clear previous interpretation
+    
     try {
       const result = await interpretDream(dreamText);
       setInterpretation(result);
     } catch (error) {
       console.error('Error interpreting dream:', error);
-      setInterpretation('Sorry, there was an error interpreting your dream. Please try again.');
+      setInterpretation(`❌ ${(error as Error).message}`);
     } finally {
       setIsInterpreting(false);
     }
+  };
+
+  const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>): void => {
+    setDreamText(e.target.value);
   };
 
   return (
@@ -33,7 +39,7 @@ const DreamInterpreter = () => {
           
           <textarea
             value={dreamText}
-            onChange={(e) => setDreamText(e.target.value)}
+            onChange={handleTextareaChange}
             placeholder="Describe your dream in detail... What did you see? How did you feel? Who was there?"
             className="w-full h-48 p-6 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-400 transition-all duration-300 resize-none"
           />

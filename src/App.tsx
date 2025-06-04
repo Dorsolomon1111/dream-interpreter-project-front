@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import HomePage from './pages/HomePage';
-import SignInPage from './pages/SignInPage';
-import SignUpPage from './pages/SignUpPage';
-import FAQPage from './pages/FAQPage';
+import HomePage from './pages/HomePage.tsx';
+import SignInPage from './pages/SignInPage.tsx';
+import SignUpPage from './pages/SignUpPage.tsx';
+import FAQPage from './pages/FAQPage.tsx';
 
 // Main App Component
-const LunaApp = () => {
-  const [expandedFAQ, setExpandedFAQ] = useState(null);
+const LunaApp: React.FC = () => {
+  const [expandedFAQ, setExpandedFAQ] = useState<string | null>(null);
 
   return (
     <Router>
