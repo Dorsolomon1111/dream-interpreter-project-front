@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
-import { Feather, Brain, Loader2 } from 'lucide-react';
+import { Feather, Brain, Loader2, CheckCircle, Share2 } from 'lucide-react';
 import { interpretDream } from '../utils/dreamInterpreter.ts';
+import { saveDreamInterpretation } from '../utils/localStorage';
 
 const DreamInterpreter: React.FC = () => {
   const [dreamText, setDreamText] = useState<string>('');
   const [interpretation, setInterpretation] = useState<string>('');
   const [isInterpreting, setIsInterpreting] = useState<boolean>(false);
+  const [isSaved, setIsSaved] = useState<boolean>(false);
 
   const handleInterpretDream = async (): Promise<void> => {
     if (!dreamText.trim()) return;
     
     setIsInterpreting(true);
     setInterpretation(''); // Clear previous interpretation
+    setIsSaved(false); // Reset save status
     
     try {
       const result = await interpretDream(dreamText);
@@ -24,8 +27,92 @@ const DreamInterpreter: React.FC = () => {
     }
   };
 
+  const handleSaveInterpretation = (): void => {
+    if (!dreamText.trim() || !interpretation.trim()) return;
+
+    const dreamData = {
+      dreamText,
+      interpretation,
+    };
+
+    const success = saveDreamInterpretation(dreamData);
+    if (success) {
+      setIsSaved(true);
+      setTimeout(() => setIsSaved(false), 3000); // Hide success message after 3 seconds
+    }
+  };
+
   const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>): void => {
     setDreamText(e.target.value);
+  };
+
+  const handleShareDream = async (): Promise<void> => {
+    if (!dreamText.trim() || !interpretation.trim()) return;
+
+    const shareText = `🌙 My Dream Interpretation from Luna
+
+💭 Dream: ${dreamText}
+
+🔮 Interpretation: ${interpretation}
+
+Interpreted by Luna - AI Dream Analysis
+Visit: ${window.location.origin}
+`;
+
+    const shareData = {
+      title: 'My Dream Interpretation - Luna',
+      text: shareText,
+      url: window.location.origin
+    };
+
+    try {
+      // Try native Web Share API first (mobile browsers)
+      if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+      } else {
+        // Fallback to clipboard
+        await navigator.clipboard.writeText(shareText);
+        
+        // Show temporary success message
+        const tempNotification = document.createElement('div');
+        tempNotification.innerHTML = `
+          <div class="fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            Dream copied to clipboard!
+          </div>
+        `;
+        document.body.appendChild(tempNotification);
+        
+        setTimeout(() => {
+          document.body.removeChild(tempNotification);
+        }, 3000);
+      }
+    } catch (error: any) {
+      // Check if user cancelled the share (this is normal behavior)
+      if (error.name === 'AbortError' || error.message === 'Share canceled') {
+        // User cancelled sharing - don't show error message
+        return;
+      }
+      
+      console.error('Error sharing dream:', error);
+      // Only show error for actual failures, not cancellations
+      const tempNotification = document.createElement('div');
+      tempNotification.innerHTML = `
+        <div class="fixed top-4 right-4 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+          Unable to share dream
+        </div>
+      `;
+      document.body.appendChild(tempNotification);
+      
+      setTimeout(() => {
+        document.body.removeChild(tempNotification);
+      }, 3000);
+    }
   };
 
   return (
@@ -71,13 +158,32 @@ const DreamInterpreter: React.FC = () => {
               <div className="whitespace-pre-wrap text-gray-300">{interpretation}</div>
               
               <div className="mt-6 flex gap-4">
-                <button className="relative px-6 py-2.5 rounded-full transition-all duration-300 bg-white/5 backdrop-blur-sm border border-purple-400/30 hover:border-purple-400/60 group overflow-hidden">
+                <button 
+                  onClick={handleSaveInterpretation}
+                  disabled={isSaved}
+                  className="relative px-6 py-2.5 rounded-full transition-all duration-300 bg-white/5 backdrop-blur-sm border border-purple-400/30 hover:border-purple-400/60 group overflow-hidden disabled:opacity-50"
+                >
                   <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-purple-600/20 to-purple-600/10 translate-x-full group-hover:translate-x-0 transition-transform duration-300"></span>
-                  <span className="relative font-medium">Save Interpretation</span>
+                  <span className="relative font-medium flex items-center gap-2">
+                    {isSaved ? (
+                      <>
+                        <CheckCircle className="w-4 h-4 text-green-400" />
+                        Saved!
+                      </>
+                    ) : (
+                      'Save Interpretation'
+                    )}
+                  </span>
                 </button>
-                <button className="relative px-6 py-2.5 rounded-full transition-all duration-300 bg-white/5 backdrop-blur-sm border border-blue-400/30 hover:border-blue-400/60 group overflow-hidden">
+                <button 
+                  onClick={handleShareDream}
+                  className="relative px-6 py-2.5 rounded-full transition-all duration-300 bg-white/5 backdrop-blur-sm border border-blue-400/30 hover:border-blue-400/60 group overflow-hidden"
+                >
                   <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-600/20 to-blue-600/10 translate-x-full group-hover:translate-x-0 transition-transform duration-300"></span>
-                  <span className="relative font-medium">Share Insights</span>
+                  <span className="relative font-medium flex items-center gap-2">
+                    <Share2 className="w-4 h-4" />
+                    Share Dream
+                  </span>
                 </button>
               </div>
             </div>

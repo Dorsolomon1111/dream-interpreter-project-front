@@ -11,9 +11,28 @@ interface FAQPageProps {
 const FAQPage: React.FC<FAQPageProps> = ({ expandedFAQ, setExpandedFAQ }) => {
   const navigate = useNavigate();
 
-  // Scroll to top when FAQ page mounts
+  // Scroll to top when FAQ page mounts - with proper scroll restoration handling
   useEffect(() => {
+    // Disable automatic scroll restoration for this navigation
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+    
+    // Force scroll to top immediately and after a short delay
     window.scrollTo(0, 0);
+    
+    // Additional scroll to top after component has fully mounted
+    const timeoutId = setTimeout(() => {
+      window.scrollTo(0, 0);
+    }, 100);
+    
+    return () => {
+      clearTimeout(timeoutId);
+      // Restore automatic scroll restoration when leaving
+      if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'auto';
+      }
+    };
   }, []);
 
   return (

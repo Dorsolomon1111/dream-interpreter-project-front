@@ -13,6 +13,12 @@ interface DreamData {
 interface SavedDream extends DreamData {
   id: number;
   timestamp: string;
+  tags?: string[];
+  sentiment?: 'positive' | 'negative' | 'neutral';
+  themes?: string[];
+  symbols?: string[];
+  mood?: string;
+  clarity?: number;
 }
 
 /**
